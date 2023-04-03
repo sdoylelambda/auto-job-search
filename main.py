@@ -1,12 +1,83 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.action_chains import ActionChains
 import time
 
+driver = webdriver.Chrome('../ChromeDriver/chromedriver')
+# Link to search for "Software Engineer" remote jobs
+search_url = 'https://www.ziprecruiter.com/jobs-search?explore_enabled=1&landed_from=suggested_jobs_blank_search&search=software+engineer&location=Remote+%28USA%29&autocomplete_request_id=957OADiwSfyiJXMWgEmBmQ'
+driver.get(search_url)
 
-def find_job():
-    driver = webdriver.Chrome('../ChromeDriver/chromedriver')
-    search_url = 'https://www.ziprecruiter.com/jobs-search?explore_enabled=1&landed_from=suggested_jobs_blank_search&search=software+engineer&location=Remote+%28USA%29&autocomplete_request_id=957OADiwSfyiJXMWgEmBmQ'
-    driver.get(search_url)
+count = 0
+pages = 0
+# time.sleep(5)
+# driver.find_element(By.CLASS_NAME, 'modal.email_alert_modal.serp.in').click()
+time.sleep(2)
+
+
+def find_job(count, pages):
+    time.sleep(1)
+    links_to_email = []
+    # Close pop up
+    # button = driver.find_element(By.CLASS_NAME, "modal-close")
+    # time.sleep(1)
+    # ActionChains(driver).move_to_element(button).click(button).perform()
+    # ElementClickInterceptedException: Message: element click intercepted: Element <button class=
+    # "zrs_btn_secondary_300 load_more_btn">...</button> is not clickable at point (297, 805). Other element would
+    # receive the click: <section class="modal email_alert_modal serp in" data-modal="email-alert" data-modal-state=
+    # "initial-mobile" tabindex="-1" role="dialog" aria-label="sign up for email job alerts"
+
+    links = driver.find_elements(By.XPATH, '//*[@href]')
+    print('links:', links)
+
+    for link in links:
+        href = link.get_attribute('href')
+        print('href:', href)
+        if 'https://www.ziprecruiter.com/k/l' in href:
+            # print('YES!!!!!YES!!!!!YES!!!!!YES!!!!!YES!!!!!YES!!!!!')
+            # print(link.get_attribute('href'))
+            href = link.get_attribute('href')
+            links_to_email.append(href)
+            count += 1
+    try:
+        driver.find_element(By.CLASS_NAME, 'modal.email_alert_modal.serp.in').click()
+    except Exception as e:
+        print('no pop up clicked--------')
+
+    try:
+        driver.find_element(By.CLASS_NAME, 'zrs_btn_secondary_300.load_more_btn').click()
+        print('LOADING NEXT PAGE')
+        pages += 1
+        time.sleep(1)
+        find_job(count, pages)
+    except Exception as e:
+        print(f'No more pages, sending email with {count} jobs to apply on {pages} pages: {e}')
+        pass
+
+    print('links to email------>', links_to_email)  # email these to me after testing
+
+    time.sleep(2)  # change this after testing
+    driver.close()
+    driver.quit()
+
+
+find_job(count, pages)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     # link = href   https://www.ziprecruiter.com/k/l
     #
@@ -27,21 +98,6 @@ def find_job():
 
     # quick_apply_cards = driver.find_elements(By.TAG_NAME, 'a')
     # print('quick_apply_cards', quick_apply_cards)
-
-    links = driver.find_elements(By.XPATH, '//*[@href]')
-    for link in links:
-        # print(link.get_attribute('href'))
-        href = link.get_attribute('href')
-        if 'https://www.ziprecruiter.com/k/l' in href:
-            print('YES!!!!!YES!!!!!YES!!!!!YES!!!!!YES!!!!!YES!!!!!')
-            print(link.get_attribute('href'))
-            href = link.get_attribute('href')
-
-
-
-    time.sleep(2)
-
-
 
     #
     #
@@ -72,10 +128,9 @@ def find_job():
     #         time.sleep(2)
             # if so email job link to me
 
-    time.sleep(2)
 
-    driver.close()
-    driver.quit()
+
+
 
 
 
@@ -87,4 +142,4 @@ def find_job():
 
 
 
-find_job()
+
